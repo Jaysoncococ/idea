@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>红蓝游戏智能分析系统</title>
+    <style>
+        /* 基础样式 */
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            margin: 0;
+            padding: 8px;
+            background-color: #f0f2f5;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .container {
+            width: 1330px;
+            margin: 0 auto;
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        /* 表格样式 */
+        .grid-table {
+            border-collapse: collapse;
+            width: 100%;
+            table-layout: fixed;
+            border: 2px solid #ACACAC;
+            position: relative;
+            background-color: #fff;
+        }
+
+        .grid-table td, .grid-table th {
+            border: 1px solid #e8e8e8;
+            width: 25px;
+            height: 25px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 0;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            position: relative;
+            z-index: 1;
+        }
+
+        .serial-number {
+            background: #f6f8fa;
+            position: sticky;
+            left: 0;
+            z-index: 1;
+            width: 40px;
+            font-weight: bold;
+            color: #586069;
+        }
+
+        .grid-table tr:nth-child(9) td,
+        .grid-table tr:nth-child(10) td {
+            background-color: #f6f8fa;
+        }
+
+        .grid-table tr:nth-child(5) td,
+        .grid-table tr:nth-child(13) td {
+            border-bottom: 1px solid #AAAAAA;
+        }
+
+        .grid-table tr:nth-child(9) td { border-bottom: 2px solid #ff4d4f; }
+        .grid-table tr:nth-child(8) td,
+        .grid-table tr:nth-child(10) td { border-bottom: 1px solid #d9d9d9; }
+        .grid-table td:nth-child(5n + 1) { border-right: 1px solid #C1C1C1; }
+
+        /* 按钮组样式 */
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 5px;
+            padding: 10px;
+            border-radius: 8px;
+            background: #f8f9fa;
+            border: 1px solid #e1e4e8;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        #bankerBtn, #bankerPlusBtn, #bankerMinusBtn, #playBankerBtn { 
+            background: #ff4d4f; 
+            color: white; 
+            box-shadow: 0 2px 0 rgba(255,77,79,0.2);
+        }
+
+        #playerBtn, #playerPlusBtn, #playerMinusBtn, #playPlayerBtn { 
+            background: #1890ff; 
+            color: white; 
+            box-shadow: 0 2px 0 rgba(24,144,255,0.2);
+        }
+
+        #undoBtn, #loadPatternBtn { 
+            background: #595959; 
+            color: white; 
+            box-shadow: 0 2px 0 rgba(89,89,89,0.2);
+        }
+
+        button:hover { 
+            opacity: 0.9; 
+            transform: translateY(-2px);
+        }
+
+        /* 统计区域样式 */
+        .statistics {
+            margin-top: 5px;
+            padding: 12px;
+            border-radius: 8px;
+            background: #f8f9fa;
+            border: 1px solid #e1e4e8;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .statistics div { 
+            margin-bottom: 8px; 
+            font-size: 16px; 
+            font-weight: 500;
+            color: #24292e;
+        }
+        
+        /* 策略记录区域样式 */
+        .strategy-records {
+            margin-top: 5px;
+            padding: 12px;
+            border-radius: 8px;
+            background: #f8f9fa;
+            border: 1px solid #e1e4e8;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .strategy-records-container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .strategy-record {
+            display: flex;
+            margin-bottom: 8px;
+            background: white;
+            border-radius: 4px;
+            border: 1px solid #e1e4e8;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            width: 100%;
+            min-height: 40px;
+            align-items: center;
+        }
+
+        .strategy-record-type {
+            width: 40px;
+            font-weight: bold;
+            color: #1890ff;
+            line-height: 1.5;
+            font-size: 16px;
+            text-align: center;
+            position: sticky;
+            left: 0;
+            background: white;
+            z-index: 1;
+            padding: 8px 1;
+        }
+
+        .strategy-record-type.banker {
+            color: #ff4d4f;
+        }        
+
+        .strategy-record-content {
+            flex: 1;
+            line-height: 1.5;
+            font-size: 12px;
+            display: flex;
+            overflow-x: auto;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
+            padding: 8px;
+            align-items: center;
+        }
+        
+        .strategy-record-content::-webkit-scrollbar {
+            display: none; /* Chrome, Safari and Opera */
+        }
+
+        .strategy-item {
+            margin-right: 15px;
+            display: inline-block;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background 0.3s;
+            background: #f6f8fa;
+            border: 1px solid #e1e4e8;
+            box-shadow: 0 1px 1px rgba(0,0,0,0.05);
+            font-size: 14px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .strategy-item:hover {
+            background: #e6f7ff;
+        }
+
+        .strategy-item b {
+            font-weight: bold;
+        }
+
+        .stop-btn {
+            background: #ff4d4f;
+            color: white;
+            padding: 2px 3px;
+            border-radius: 3px;
+            margin-left: 5px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        /* 蓝区域负数样式 */
+        .strategy-record-type:not(.banker) + .strategy-record-content .strategy-item b.negative {
+            color: #4AB517;
+        }
+        /* 红区域负数样式 */
+        .strategy-record-type.banker + .strategy-record-content .strategy-item b.negative {
+            color: #4AB517;
+        }
+        
+        /* 初始本金区域样式 */
+        #principal {
+            width: 100px;
+            padding: 6px;
+            border: 1px solid #e1e4e8;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        /* 弹窗样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+            width: 580px;
+            border: 1px solid #e1e4e8;
+        }
+
+        .modal input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #e1e4e8;
+            border-left: 5px solid #4682b4;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+
+        .modal .slider {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 10px 0;
+        }
+
+        .modal .slider span, .slider span {
+            padding: 8px 12px;
+            background: #f6f8fa;
+            border-radius: 6px;
+            cursor: pointer;
+            white-space: nowrap;
+            border: 1px solid #e1e4e8;
+            transition: all 0.2s;
+        }
+
+        .modal .slider span:hover, 
+        .modal .slider span.active,
+        .slider span:hover, 
+        .slider span.active,
+        .strategy-button:hover,
+        .strategy-button.active {
+            background: #0099cc;
+            color: white;
+            border-color: #0099cc;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: flex-end;
+        }
+        .modal-buttons button {
+            padding: 8px 50px;
+            margin: 0 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            flex: none;
+        }
+        #modalConfirm, .confirm {
+            background: #0099cc;
+            color: white;
+        }
+        #modalCancel, .cancel {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        .hit-miss-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 15px 0;
+        }
+
+        #hitBtn, #missBtn {
+            padding: 8px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.2s;
+            border: 1px solid #e1e4e8;
+            background: #f6f8fa;
+            color: #24292e;
+            min-width: 80px;
+        }
+
+        #hitBtn:hover, #hitBtn.active {
+            background: #ff4d4f;
+            color: white;
+            border-color: #ff4d4f;
+        }
+
+        #missBtn:hover, #missBtn.active {
+            background: #52c41a;
+            color: white;
+            border-color: #52c41a;
+        }
+
+        /* 形态匹配弹窗 */
+        .pattern-match-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -80%);
+            background: white;
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2); /* 添加阴影效果 */
+            z-index: 1001;
+            width: 380px;
+            text-align: center;
+            animation: pulseBorder 1.5s infinite;
+            border: 5px solid #e1e4e8; /* 添加边框 */
+            overflow: hidden;
+        }
+
+        .pattern-match-modal::before,
+        .pattern-match-modal::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 2px solid transparent;
+            border-radius: 10px;
+            pointer-events: none;
+        }
+
+        .pattern-match-modal::before {
+            animation: ripple 3s infinite;
+        }
+
+        .pattern-match-modal::after {
+            animation: ripple 3s infinite 1s;
+        }
+
+        .pattern-match-modal h3 {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 0;
+            background: linear-gradient(90deg, #ff4d4f, #fa8c16, #52c41a, #1890ff, #722ed1, #eb2f96);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+            padding: 5px 0;
+        }
+
+        .pattern-match-type {
+            font-size: 28px;
+            font-weight: bold;
+            margin: 15px 0;
+            padding: 10px;
+            border-radius: 4px;
+            background: rgba(250, 250, 250, 0.8);
+        }
+
+        .pattern-match-type.banker {
+            color: #ff4d4f;
+            border: 1px solid #ff4d4f;
+        }
+
+        .pattern-match-type.player {
+            color: #1890ff;
+            border: 1px solid #1890ff;
+        }
+
+        .pattern-match-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .pattern-match-buttons button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        #playBtn {
+            background: #52c41a;
+            color: white;
+        }
+
+        #playBtn:hover {
+            background: #389e0d;
+        }
+
+        #dontPlayBtn {
+            background: #ff4d4f;
+            color: white;
+        }
+
+        #dontPlayBtn:hover {
+            background: #cf1322;
+        }
+
+        /* 特效样式 */
+        .plus-effect {
+            animation: plusEffect 0.5s ease-out;
+            background-color: rgba(200, 230, 255, 0.7);
+            border-radius: 3px;
+        }
+
+        .minus-effect {
+            animation: minusEffect 0.5s ease-out;
+            background-color: rgba(230, 240, 255, 0.7);
+            border-radius: 3px;
+        }
+
+        @keyframes plusEffect {
+            0% { transform: translateY(0); }
+            25% { transform: translateY(-5px); }
+            50% { transform: translateY(0); }
+            75% { transform: translateY(-3px); }
+            100% { transform: translateY(0); }
+        }
+
+        @keyframes minusEffect {
+            0% { opacity: 0.5; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        /* 中央提醒 */
+        .center-alert {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 18px;
+            z-index: 1000;
+            display: none;
+            animation: pulse 2s infinite;
+            max-width: 80%;
+            text-align: center;
+        }
+
+        @keyframes pulseBorder {
+            0% { box-shadow: 0 0 0 0 rgba(0, 150, 255, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(0, 150, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 150, 255, 0); }
+        }
+
+        /* 拖动滚动样式 */
+        .strategy-records {
+            cursor: grab;
+            user-select: none;
+        }
+        
+        .strategy-records.grabbing {
+            cursor: grabbing;
+        }
+
+        /* 表格水印 */
+        .grid-table::after {
+            content: "VS";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 300px;
+            font-weight: bold;
+            color: rgba(200, 200, 200, 0.1);
+            z-index: 0;
+            pointer-events: none;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+
+        /* 高亮效果 */
+        .highlight-effect-positive {
+            animation: highlightBlinkPositive 1s ease-in-out 6;
+            box-shadow: 0 0 5px 2px rgba(100, 100, 100, 0.3);
+            position: relative;
+            z-index: 2;
+        }
+
+        .highlight-effect-negative {
+            animation: highlightBlinkNegative 1s ease-in-out 6;
+            box-shadow: 0 0 5px 2px rgba(200, 0, 0, 0.5);
+            position: relative;
+            z-index: 2;
+        }
+
+        /* 水波纹动画 */
+        @keyframes ripple {
+            0% {
+                border-color: rgba(0, 150, 255, 0.3);
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                border-color: rgba(0, 150, 255, 0);
+                transform: scale(1.1);
+                opacity: 0;
+            }
+        }
+
+        @keyframes highlightBlinkPositive {
+            0%, 100% { background-color: rgba(220, 220, 220, 0.5); }
+            50% { background-color: rgba(160, 160, 160, 0.8); }
+        }
+
+        @keyframes highlightBlinkNegative {
+            0%, 100% { background-color: rgba(255, 200, 200, 0.5); }
+            50% { background-color: rgba(255, 100, 100, 0.8); }
+        }
+
+        /* 颜色类 */
+        #total.positive { color: #ff4d4f; }
+        #total.negative { color: #52c41a; }
+        #winRate.low { color: #52c41a; }
+        #winRate.high { color: #ff4d4f; }
+        #winRate.legendary { color: #722ed1; }
+        #currentAmountTip { font-weight: normal; }
+        #currentAmountTip.low { color: #52c41a; }
+        #currentAmountTip.high { color: #ff4d4f; }
+        #currentAmountTip.legendary { 
+            background: linear-gradient(90deg, #ff4d4f, #fa8c16, #52c41a, #1890ff, #722ed1, #eb2f96); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+        }
+    </style>
+</head>
+<body>
+    <div class="center-alert" id="centerAlert"></div>
+    
+    <div class="container">
+        <table class="grid-table" id="gameTable">
+            <tbody id="tableBody"></tbody>
+        </table>
+        <div class="button-group">
+            <button id="undoBtn">撤销</button>
+            <button id="loadPatternBtn">加载形态数据</button>
+            <button id="playBankerBtn">打红</button>
+            <button id="playPlayerBtn">打蓝</button>
+            <button id="bankerBtn">记录红</button>
+            <button id="playerBtn">记录蓝</button>
+        </div>
+        
+        <div class="strategy-records" id="strategyRecords">
+            <div class="strategy-records-container">
+                <div class="strategy-record">
+                    <div class="strategy-record-type">蓝</div>
+                    <div class="strategy-record-content" id="playerStrategy"></div>
+                </div>
+                <div class="strategy-record">
+                    <div class="strategy-record-type banker">红</div>
+                    <div class="strategy-record-content" id="bankerStrategy"></div>
+                </div>
+        </div>
+        
+        <div class="statistics" id="statistics">
+            <div>
+                初始:&nbsp;<input type="number" id="principal" placeholder="本金积分" style="width: 100px; padding: 5px;">
+                本局当前:&nbsp;<span id="total" class="positive"><b>0</b></span>&nbsp;&nbsp;&nbsp;
+                <span id="currentAmountTip"></span>&nbsp;&nbsp;&nbsp;&nbsp;
+                胜率:&nbsp;<span id="winRate" class="low"><b>0%</b></span>&nbsp;&nbsp;&nbsp;
+            </div>
+        </div>
+    </div>
+
+    <!-- 弹窗 -->
+    <div id="modal" class="modal">
+        <input type="number" id="modalInput" placeholder="请输入">
+        <div class="slider">
+            <span>1</span><span>2</span><span>3</span><span>50</span><span>100</span>
+            <span>200</span><span>300</span><span>400</span><span>500</span><span>600</span>
+        </div>
+        <div class="hit-miss-buttons">
+            <button id="hitBtn">中</button>
+            <button id="missBtn">挂</button>
+        </div>
+        <div class="modal-buttons">
+		    <button id="modalConfirm">确认</button>
+            <button id="modalCancel">取消</button>            
+        </div>
+    </div>
+    
+    <!-- 形态匹配弹窗 -->
+    <div id="patternMatchModal" class="pattern-match-modal">
+        <h3>检测到进场点位</h3>
+        <div id="matchedPatternName"></div>
+        <div id="matchedPatternType" class="pattern-match-type"></div>
+        <div class="pattern-match-buttons">
+            <button id="playBtn">下注</button>
+            <button id="dontPlayBtn">跳过</button>
+        </div>
+    </div>
+
+    <script>
+        const tableBody = document.getElementById('tableBody');
+        const serialNumbers = [9, 8, 7, 6, 5, 4, 3, 2, 1, -1, -2, -3, -4, -5, -6, -7, -8, -9];
+        let historyStack = [], currentColumn = 1;
+        let columnsStatus = Array(51).fill(null);
+        let usedRowsPerColumn = Array(51).fill(0);
+        let total = 0, winCount = 0, totalCount = 0;
+        const totalElement = document.getElementById('total');
+        const winRateElement = document.getElementById('winRate');
+        const currentAmountTip = document.getElementById('currentAmountTip');
+        const principalInput = document.getElementById('principal');
+        const modal = document.getElementById('modal');
+        const modalInput = document.getElementById('modalInput');
+        const modalConfirm = document.getElementById('modalConfirm');
+        const modalCancel = document.getElementById('modalCancel');
+        const playerStrategyElement = document.getElementById('playerStrategy');
+        const bankerStrategyElement = document.getElementById('bankerStrategy');
+        const totalStrategyElement = document.getElementById('totalStrategy');
+        let currentType = null, currentDelta = null;
+        let currentStrategy = null;
+        let currentIsFromPattern = false;
+		let strategyHistory = { banker: {}, player: {} };
+        
+        let savedPatterns = [];
+        let lastMatchedPattern = null;
+        let lastMatchedTime = 0;
+        let currentMatchedPattern = null;
+        let currentMatchedType = null;
+        
+        // 拖动相关变量
+        let isDragging = false;
+        let startX, scrollLeft;
+
+        // 初始化表格
+        function initTable() {
+            serialNumbers.forEach(num => {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td class="serial-number">${num}</td>`;
+                for (let i = 1; i <= 50; i++) {
+                    row.innerHTML += `<td data-row="${num}" data-col="${i}" title=""></td>`;
+                }
+                tableBody.appendChild(row);
+            });
+
+            // 绑定金额选择事件
+            document.querySelectorAll('.slider span').forEach(span => {
+                span.addEventListener('click', function() {
+                    modalInput.value = this.textContent;
+                    document.querySelectorAll('.slider span').forEach(s => s.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // 绑定拖动事件到 strategy-record-content
+            const strategyRecordContents = document.querySelectorAll('.strategy-record-content');
+            strategyRecordContents.forEach(content => {
+                content.addEventListener('mousedown', startDrag);
+                content.addEventListener('mousemove', drag);
+                content.addEventListener('mouseup', endDrag);
+                content.addEventListener('mouseleave', endDrag);
+                // 阻止默认的鼠标选择行为
+                content.addEventListener('selectstart', function(e) {
+                    e.preventDefault();
+                });
+            });
+        }
+
+        // 开始拖动
+        function startDrag(e) {
+            isDragging = true;
+            const target = e.currentTarget;
+            target.classList.add('grabbing');
+            startX = e.pageX - target.offsetLeft;
+            scrollLeft = target.scrollLeft;
+            // 阻止鼠标按下时的默认行为
+            e.preventDefault();
+        }
+
+        // 拖动中
+        function drag(e) {
+            if (!isDragging) return;
+            const target = e.currentTarget;
+            const x = e.pageX - target.offsetLeft;
+            const walk = (x - startX); // 拖动速度
+            target.scrollLeft = scrollLeft - walk;
+        }
+
+        // 结束拖动
+        function endDrag(e) {
+            isDragging = false;
+            const target = e.currentTarget;
+            target.classList.remove('grabbing');
+        }
+
+        // 查找下一个可用单元格
+        function findNextCell(type) {
+            let startRow = type === 'banker' ? -1 : 1;
+            let step = type === 'banker' ? -1 : 1;
+
+            if (columnsStatus[currentColumn] !== null && columnsStatus[currentColumn] !== type) {
+                currentColumn++;
+                usedRowsPerColumn[currentColumn] = 0;
+            }
+
+            if (usedRowsPerColumn[currentColumn] >= 9) {
+                const cell = document.querySelector(`[data-row="${startRow + 8 * step}"][data-col="${currentColumn}"]`);
+                if (cell) {
+                    usedRowsPerColumn[currentColumn]++;
+                    return cell;
+                }
+            } else {
+                for (let row = startRow; ; row += step) {
+                    if ((type === 'banker' && row < -9) || (type === 'player' && row > 9)) break;
+                    const cell = document.querySelector(`[data-row="${row}"][data-col="${currentColumn}"]`);
+                    if (!cell.textContent) {
+                        if (columnsStatus[currentColumn] === null) columnsStatus[currentColumn] = type;
+                        usedRowsPerColumn[currentColumn]++;
+                        return cell;
+                    }
+                }
+            }
+
+            currentColumn++;
+            usedRowsPerColumn[currentColumn] = 0;
+            return findNextCell(type);
+        }
+
+        // 更新胜率
+        function updateWinRate() {
+            if (totalCount === 0) {
+                winRateElement.textContent = '0%';              
+                winRateElement.className = 'low';
+                return;
+            }
+            const winRate = Math.round((winCount / totalCount) * 100);
+            winRateElement.innerHTML = `<b>${winRate}%</b>`;
+            if (winRate < 50) {
+                winRateElement.className = 'low';
+            } else if (winRate < 70) {
+                winRateElement.className = 'high';
+            } else {
+                winRateElement.className = 'legendary';
+            }
+        }
+
+        // 更新总数颜色
+        function updateTotalColor() {
+            if (total >= 0) {
+                totalElement.className = 'positive';
+            } else {
+                totalElement.className = 'negative';
+            }
+        }
+
+        // 更新本金
+        function updatePrincipal() {
+            const principal = parseFloat(principalInput.value) || 0;
+            const currentTotal = principal + total;
+            totalElement.innerHTML = currentTotal >= 0 ? `<b>${currentTotal}</b>` : `<b>${currentTotal}</b>`;
+            updateTotalColor();
+
+            // 更新当前金额提示
+            if (currentTotal <= principal * 0.5) {
+                currentAmountTip.textContent = '⚠️亏损超50%，请严格止损';
+                currentAmountTip.className = 'low';
+            } else if (currentTotal <= principal * 0.95) {
+                currentAmountTip.textContent = '⚠️当前暂无盈利，避免重注';
+                currentAmountTip.className = 'low';
+            } else if (currentTotal > principal * 1.5 && currentTotal <= principal * 1.8) {
+                currentAmountTip.textContent = '盈利超50%，减少投入';
+                currentAmountTip.className = 'high';
+            } else if (currentTotal > principal * 1.8 && currentTotal <= principal * 2) {
+                currentAmountTip.textContent = '盈利超80%，考虑收工';
+                currentAmountTip.className = 'legendary';
+            } else if (currentTotal > principal * 2) {
+                currentAmountTip.textContent = '盈利已翻倍，请及时收工';
+                currentAmountTip.className = 'legendary';
+            } else {
+                currentAmountTip.textContent = '';
+            }
+        }
+
+        // 更新策略记录
+        function updateStrategyRecord(strategy, value, cell) {
+            const baseStrategyName = strategy.replace(/中|挂/g, '');
+            const type = strategy.startsWith('H') ? 'banker' : 'player';
+            const element = type === 'banker' ? bankerStrategyElement : playerStrategyElement;
+            
+            if (baseStrategyName) {
+                if (!strategyHistory[type][baseStrategyName]) {
+                    strategyHistory[type][baseStrategyName] = { hit: 0, miss: 0, total: 0, cells: [] };
+                }
+                
+                const record = strategyHistory[type][baseStrategyName];
+                if (value >= 0) {
+                    record.hit++;
+                } else {
+                    record.miss++;
+                }
+                record.total += value;
+                if (cell) {
+                    record.cells.push({ cell, value });
+                }
+                
+                updateStrategyDisplay();
+            }
+        }
+
+        // 更新策略显示
+        function updateStrategyDisplay() {
+            playerStrategyElement.innerHTML = '';
+            bankerStrategyElement.innerHTML = '';
+            
+            // 对策略进行分类排序
+            const sortAndDisplayStrategies = (type) => {
+                const strategies = Object.entries(strategyHistory[type] || {});
+                
+                // 将策略分为三类
+                const negativeStrategies = [];  // 负数策略
+                const positiveStrategies = [];  // 正数策略
+                const stopStrategies = [];      // 建议停打策略
+                
+                strategies.forEach(([strategy, record]) => {
+                    if (record.hit - record.miss >= 1) {
+                        stopStrategies.push({strategy, record});
+                    } else if (record.total < 0) {
+                        negativeStrategies.push({strategy, record});
+                    } else {
+                        positiveStrategies.push({strategy, record});
+                    }
+                });
+                
+                // 按赢分排序(负数从小到大，正数从大到小)
+                negativeStrategies.sort((a, b) => a.record.total - b.record.total);
+                positiveStrategies.sort((a, b) => b.record.total - a.record.total);
+                stopStrategies.sort((a, b) => b.record.total - a.record.total);
+                
+                // 合并数组: 负数 → 正数 → 停打
+                const sortedStrategies = [...negativeStrategies, ...positiveStrategies, ...stopStrategies];
+                
+                // 显示策略
+                sortedStrategies.forEach(({strategy, record}) => {
+                    const span = createStrategySpan(type, strategy, record);
+                    if (type === 'banker') {
+                        bankerStrategyElement.appendChild(span);
+                    } else {
+                        playerStrategyElement.appendChild(span);
+                    }
+                });
+            };
+            
+            sortAndDisplayStrategies('player');
+            sortAndDisplayStrategies('banker');
+            
+            bindStrategyClickEvents();
+        }
+
+        // 创建策略span元素
+        function createStrategySpan(type, strategy, record) {
+            const span = document.createElement('span');
+            span.className = 'strategy-item';
+            span.dataset.strategy = strategy;
+            span.dataset.type = type;
+            
+            span.innerHTML = `${strategy} 中${record.hit} 挂${record.miss} 赢 <b class="${record.total < 0 ? 'negative' : ''}">${record.total}</b>`;
+            
+            if (record.hit - record.miss >= 1) {
+                const stopBtn = document.createElement('span');
+                stopBtn.className = 'stop-btn';
+                stopBtn.textContent = '停';
+                span.appendChild(stopBtn);
+            }
+            
+            return span;
+        }
+
+        // 绑定策略点击事件
+        function bindStrategyClickEvents() {
+            document.querySelectorAll('.strategy-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    highlightStrategyCells(this.dataset.type, this.dataset.strategy);
+                });
+            });
+        }
+
+        // 高亮显示策略对应的单元格
+        function highlightStrategyCells(type, strategy) {
+            document.querySelectorAll('.highlight-effect-positive, .highlight-effect-negative').forEach(cell => {
+                cell.classList.remove('highlight-effect-positive', 'highlight-effect-negative');
+            });
+            
+            if (strategyHistory[type] && strategyHistory[type][strategy]) {
+                strategyHistory[type][strategy].cells.forEach(item => {
+                    const cell = item.cell;
+                    const value = item.value;
+                    
+                    if (value >= 0) {
+                        cell.classList.add('highlight-effect-positive');
+                    } else {
+                        cell.classList.add('highlight-effect-negative');
+                    }
+                });
+                
+                setTimeout(() => {
+                    document.querySelectorAll('.highlight-effect-positive, .highlight-effect-negative').forEach(cell => {
+                        cell.classList.remove('highlight-effect-positive', 'highlight-effect-negative');
+                    });
+                }, 6000);
+            }
+        }
+
+        // 撤销操作
+        function undo() {
+            if (historyStack.length > 0) {
+                const last = historyStack.pop();
+                last.cell.textContent = '';
+                last.cell.style.color = '';
+                last.cell.setAttribute('title', '');
+                last.cell.className = '';
+                usedRowsPerColumn[last.column]--;
+
+                const isColumnEmpty = Array.from(tableBody.querySelectorAll(`[data-col="${last.column}"]`))
+                    .every(cell => !cell.textContent);
+
+                if (isColumnEmpty) {
+                    columnsStatus[last.column] = null;
+                    usedRowsPerColumn[last.column] = 0;
+                }
+
+                for (let c = last.column; c >= 1; c--) {
+                    if (usedRowsPerColumn[c] > 0) {
+                        currentColumn = c;
+                        break;
+                    }
+                }
+
+                if (last.value !== undefined) {
+                    total -= last.value;
+                    updatePrincipal();
+                    if (last.value > 0) winCount--;
+                    totalCount--;
+                    updateWinRate();
+                    
+                    if (last.strategy) {
+                        const baseStrategyName = last.strategy.replace(/中|挂/g, '');
+                        const type = last.strategy.startsWith('H') ? 'banker' : 'player';
+                        
+                        if (strategyHistory[type] && strategyHistory[type][baseStrategyName]) {
+                            const record = strategyHistory[type][baseStrategyName];
+                            
+                            const cellIndex = record.cells.findIndex(c => c.cell === last.cell);
+                            if (cellIndex !== -1) {
+                                const cellRecord = record.cells[cellIndex];
+                                
+                                if (cellRecord.value >= 0) {
+                                    record.hit--;
+                                } else {
+                                    record.miss--;
+                                }
+                                record.total -= cellRecord.value;
+                                
+                                record.cells.splice(cellIndex, 1);
+                                
+                                if (record.cells.length === 0) {
+                                    delete strategyHistory[type][baseStrategyName];
+                                }
+                            }
+                        }
+                        updateStrategyDisplay();
+                    }
+                }
+            }
+        }
+
+        // 显示弹窗时禁用按钮
+        function disableMainButtons() {
+            document.getElementById('undoBtn').disabled = true;
+            document.getElementById('playBankerBtn').disabled = true;
+            document.getElementById('playPlayerBtn').disabled = true;
+            document.getElementById('bankerBtn').disabled = true;
+            document.getElementById('playerBtn').disabled = true;
+        }
+
+        // 隐藏弹窗时启用按钮
+        function enableMainButtons() {
+            document.getElementById('undoBtn').disabled = false;
+            document.getElementById('playBankerBtn').disabled = false;
+            document.getElementById('playPlayerBtn').disabled = false;
+            document.getElementById('bankerBtn').disabled = false;
+            document.getElementById('playerBtn').disabled = false;
+        }
+
+        // 显示弹窗
+        function showModal(type, strategy = null, isFromPattern = false) {
+            currentType = type;
+            currentDelta = null;
+            currentStrategy = strategy || (type === 'banker' ? 'H' : 'L');
+            currentIsFromPattern = isFromPattern;
+            modalInput.value = '';
+            modal.style.display = 'block';
+            
+            document.getElementById('hitBtn').classList.remove('active');
+            document.getElementById('missBtn').classList.remove('active');
+            document.querySelectorAll('.slider span').forEach(span => {
+                span.classList.remove('active');
+            });
+			disableMainButtons();
+        }
+
+        // 隐藏弹窗
+        function hideModal() {
+            modal.style.display = 'none';
+			enableMainButtons();
+        }
+
+        // 处理弹窗确认
+        function confirmModal() {
+            const value = parseFloat(modalInput.value);
+            if (isNaN(value)) {
+                alert('请输入有效的数字');
+                return;
+            }
+            
+            const hitBtn = document.getElementById('hitBtn');
+            const missBtn = document.getElementById('missBtn');
+            
+            if (!hitBtn.classList.contains('active') && !missBtn.classList.contains('active')) {
+                alert('请选择"中"或"挂"');
+                return;
+            }
+            
+            const isHit = hitBtn.classList.contains('active');
+            const delta = isHit ? 1 : -1;
+            const strategy = currentStrategy + (isHit ? '中' : '挂');
+            
+            handleButtonClick(currentType, delta, value, strategy, currentIsFromPattern);
+            hideModal();
+        }
+
+        // 处理按钮点击
+        function handleButtonClick(type, delta, value, strategy, isFromPattern = false) {
+            let numValue = value * delta;
+            if (type === 'banker' && delta > 0) numValue = Math.round(numValue * 0.95);
+
+            const displayType = delta > 0 ? type : (type === 'banker' ? 'player' : 'banker');
+            
+            total += numValue;
+            updatePrincipal();
+            if (delta > 0) winCount++;
+            totalCount++;
+            updateWinRate();
+
+            const cell = findNextCell(displayType);
+            if (cell) {
+                cell.textContent = numValue;
+                cell.setAttribute('title', cell.textContent);
+                cell.style.color = displayType === 'banker' ? 'red' : 'blue';
+                cell.classList.add('bold');
+                
+                if (delta > 0) {
+                    cell.classList.add('plus-effect');
+                } else {
+                    cell.classList.add('minus-effect');
+                }
+                
+                setTimeout(() => {
+                    cell.classList.remove('plus-effect', 'minus-effect');
+                }, 500);
+                
+                historyStack.push({ 
+                    type: displayType, 
+                    cell, 
+                    column: currentColumn, 
+                    usedRows: usedRowsPerColumn[currentColumn], 
+                    value: numValue,
+                    strategy: isFromPattern ? strategy : null
+                });
+                
+                if (isFromPattern && strategy) {
+                    updateStrategyRecord(strategy, numValue, cell);
+                } else {
+                    updateStrategyDisplay();
+                }
+                
+                checkForPatternMatches();
+            }
+        }
+
+        // 处理出庄和出闲
+        function markCell(type) {
+            const cell = findNextCell(type);
+            if (cell) {
+                if (usedRowsPerColumn[currentColumn] >= 9) {
+                    cell.textContent = usedRowsPerColumn[currentColumn];
+                } else {
+                    cell.textContent = '❽';
+                }
+                cell.setAttribute('title', cell.textContent);
+                cell.style.color = type === 'banker' ? 'red' : 'blue';
+                historyStack.push({ type, cell, column: currentColumn, usedRows: usedRowsPerColumn[currentColumn] });
+                
+                checkForPatternMatches();
+            }
+        }
+
+        // 检查条件是否满足
+        function evaluateCondition(value, operator, compareValue) {
+            switch(operator) {
+                case '>': return value > compareValue;
+                case '<': return value < compareValue;
+                case '>=': return value >= compareValue;
+                case '<=': return value <= compareValue;
+                case '==': return value === compareValue;
+                default: return false;
+            }
+        }
+
+        function checkConditions(columnData, conditions) {
+            for (let i = 0; i < conditions.length; i++) {
+                const condition = conditions[i];
+                const column = columnData[i];
+                
+                if (!column) return false;
+                
+                let valueToCheck;
+                switch(condition.type) {
+                    case 'bankerCount': valueToCheck = column.bankerCount; break;
+                    case 'playerCount': valueToCheck = column.playerCount; break;
+                }
+                
+                if (!evaluateCondition(valueToCheck, condition.operator, condition.value) || 
+                    !evaluateCondition(valueToCheck, condition.operator2, condition.value2)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        // 显示形态匹配弹窗
+        function showPatternMatchModal(patternName, type) {
+            const basePatternName = patternName.replace(/中|挂/g, '');
+            const strategyType = patternName.startsWith('H') ? 'banker' : 'player';
+            const record = strategyHistory[strategyType][basePatternName] || { hit: 0, miss: 0, total: 0, cells: [] };
+            
+            let statsHTML = `中${record.hit} 挂${record.miss} 赢 <b style="color:${record.total >= 0 ? '#ff4d4f' : '#52c41a'}">${record.total}</b>`;
+            
+            if (record.hit - record.miss >= 1) {
+                statsHTML += ' <span style="color:#52c41a">(建议停打)</span>';
+            }
+            
+            document.getElementById('matchedPatternName').innerHTML = `${patternName} (当前): ${statsHTML}`;
+            const typeElement = document.getElementById('matchedPatternType');
+            typeElement.textContent = type === 'banker' ? '打红' : '打蓝';
+            typeElement.className = `pattern-match-type ${type}`;
+            document.getElementById('patternMatchModal').style.display = 'block';
+            
+            currentMatchedPattern = patternName;
+            currentMatchedType = type;
+			
+			disableMainButtons();
+        }
+        
+        function hidePatternMatchModal() {
+            document.getElementById('patternMatchModal').style.display = 'none';
+			enableMainButtons();
+        }
+
+        // 检查是否有匹配的模式
+        function checkForPatternMatches() {
+            if (savedPatterns.length === 0) return;
+            
+            const allColumnsData = [];
+            
+            // 计算总记录数量
+            let totalRecords = 0;
+            for (let col = 1; col <= 50; col++) {
+                const columnCells = Array.from(tableBody.querySelectorAll(`[data-col="${col}"]`));
+                const hasData = columnCells.some(cell => cell.textContent);
+                if (hasData) totalRecords += columnCells.filter(cell => cell.textContent).length;
+            }
+            
+            for (let col = 1; col <= 50; col++) {
+                const columnCells = Array.from(tableBody.querySelectorAll(`[data-col="${col}"]`));
+                const hasData = columnCells.some(cell => cell.textContent);
+                
+                if (hasData) {
+                    const columnData = {
+                        bankerCount: 0,
+                        playerCount: 0,
+                        colNumber: col
+                    };
+                    
+                    columnCells.forEach(cell => {
+                        if (cell.style.color === 'red') {
+                            columnData.bankerCount++;
+                        } else if (cell.style.color === 'blue') {
+                            columnData.playerCount++;
+                        }
+                    });
+                    
+                    allColumnsData.push(columnData);
+                }
+            }
+            
+            for (const pattern of savedPatterns) {
+                const requiredColumns = pattern.conditions.length;
+                
+                if (allColumnsData.length < requiredColumns) continue;
+                
+                const startCol = Math.max(0, allColumnsData.length - requiredColumns);
+                const currentColumns = allColumnsData.slice(startCol, startCol + requiredColumns);
+                
+                if (checkConditions(currentColumns, pattern.conditions)) {
+                    const matchedType = pattern.color === 'banker' ? 'banker' : 'player';
+                    const basePatternName = pattern.name.replace(/中|挂/g, '');
+                    const strategyType = pattern.name.startsWith('H') ? 'banker' : 'player';
+                    const record = strategyHistory[strategyType][basePatternName] || { hit: 0, miss: 0, total: 0, cells: [] };
+                    
+                    // 条件1: 整局记录超过50把且该形态从未出现过
+                    if (totalRecords > 50 && (record.hit === 0 && record.miss === 0)) {
+                        continue;
+                    }
+                    
+                    // 条件2: 提示停的形态 (hit - miss >= 1)
+                    if (record.hit - record.miss >= 1) {
+                        continue;
+                    }
+                    
+                    const currentTime = Date.now();
+                    if (currentTime - lastMatchedTime > 3000 || lastMatchedPattern !== pattern.name) {
+                        showPatternMatchModal(pattern.name, matchedType);
+                        lastMatchedPattern = pattern.name;
+                        lastMatchedTime = currentTime;
+                    }
+                    return;
+                }
+            }
+            
+            lastMatchedPattern = null;
+        }
+
+        // 显示中央提醒
+        function showCenterAlert(message) {
+            const alert = document.getElementById('centerAlert');
+            alert.textContent = message;
+            alert.style.display = 'block';
+            
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 3000);
+        }
+
+        // 隐藏中央提醒
+        function hideCenterAlert() {
+            document.getElementById('centerAlert').style.display = 'none';
+        }
+
+        // 加载形态数据
+        function loadPatternData() {
+    fetch('./abc.json')  // 添加 ./ 表示当前目录
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('网络响应不正常');
+            }
+            return response.json();
+        })
+        .then(data => {
+            savedPatterns = data;
+            showCenterAlert(`成功加载 ${data.length} 条形态数据`);
+        })
+        .catch(error => {
+            console.error('加载失败:', error);
+            showCenterAlert(`加载失败: ${error.message}`);
+        });
+}
+
+        // 绑定事件
+        document.getElementById('bankerBtn').addEventListener('click', () => markCell('banker'));
+        document.getElementById('playerBtn').addEventListener('click', () => markCell('player'));
+        document.getElementById('playBankerBtn').addEventListener('click', () => showModal('banker'));
+        document.getElementById('playPlayerBtn').addEventListener('click', () => showModal('player'));
+        document.getElementById('undoBtn').addEventListener('click', undo);
+        document.getElementById('loadPatternBtn').addEventListener('click', loadPatternData);
+        document.getElementById('hitBtn').addEventListener('click', function() {
+            document.getElementById('hitBtn').classList.add('active');
+            document.getElementById('missBtn').classList.remove('active');
+        });
+        document.getElementById('missBtn').addEventListener('click', function() {
+            document.getElementById('missBtn').classList.add('active');
+            document.getElementById('hitBtn').classList.remove('active');
+        });
+        document.getElementById('playBtn').addEventListener('click', function() {
+            hidePatternMatchModal();
+            showModal(currentMatchedType, currentMatchedPattern, true);
+        });
+        document.getElementById('dontPlayBtn').addEventListener('click', hidePatternMatchModal);
+        modalConfirm.addEventListener('click', confirmModal);
+        modalInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') confirmModal();
+        });
+        modalCancel.addEventListener('click', hideModal);
+        principalInput.addEventListener('input', updatePrincipal);
+
+        // 初始化
+        window.addEventListener('DOMContentLoaded', function() {
+            initTable();
+        });
+    </script>
+</body>
+</html>

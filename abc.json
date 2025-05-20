@@ -1,0 +1,380 @@
+[
+  {
+    "name": "L_等高线",
+    "conditions": [
+      {
+        "type": "playerCount",
+        "operator": "==",
+        "value": 2,
+        "operator2": ">",
+        "value2": 0
+      },
+      {
+        "type": "bankerCount",
+        "operator": ">=",
+        "value": 1,
+        "operator2": ">",
+        "value2": 0
+      },
+      {
+        "type": "playerCount",
+        "operator": "==",
+        "value": 1,
+        "operator2": ">",
+        "value2": 0
+      },
+      {
+        "type": "bankerCount",
+        "operator": ">=",
+        "value": 1,
+        "operator2": ">",
+        "value2": 0
+      },
+      {
+        "type": "playerCount",
+        "operator": "==",
+        "value": 2,
+        "operator2": ">",
+        "value2": 0
+      }
+    ],
+    "prefix": "L",
+    "color": "banker"
+  },
+  {
+    "name": "L_同类等高",
+    "conditions": [
+      {
+        "type": "playerCount",
+        "operator": "==",
+        "value": 2,
+        "operator2": ">",
+        "value2": 0
+      },
+      {
+        "type": "bankerCount",
+        "operator": ">=",
+        "value": 1,
+        "operator2": ">",
+        "value2": 0
+      },
+      {
+        "type": "playerCount",
+        "operator": "==",
+        "value": 2,
+        "operator2": ">",
+        "value2": 0
+      }
+    ],
+    "prefix": "L",
+    "color": "banker"
+  },
+  {
+    "name": "L_网捞点",
+    "conditions": [
+      {
+        "type": "playerCount",
+        "operator": ">=",
+        "value": 2,
+        "operator2": ">",
+        "value2": 0
+      },
+      {
+        "type": "bankerCount",
+        "operator": ">=",
+        "value": 1,
+        "operator2": ">",
+        "value2": 0
+      },
+      {
+        "type": "playerCount",
+        "operator": "==",
+        "value": 1,
+        "operator2": ">",
+        "value2": 0
+      },
+      {
+        "type": "bankerCount",
+        "operator": ">=",
+        "value": 1,
+        "operator2": ">",
+        "value2": 0
+      },
+      {
+        "type": "playerCount",
+        "operator": ">=",
+        "value": 2,
+        "operator2": ">",
+        "value2": 0
+      },
+      {
+        "type": "bankerCount",
+        "operator": ">=",
+        "value": 1,
+        "operator2": ">",
+        "value2": 0
+      },
+      {
+        "type": "playerCount",
+        "operator": "==",
+        "value": 1,
+        "operator2": ">",
+        "value2": 0
+      },
+      {
+        "type": "bankerCount",
+        "operator": ">=",
+        "value": 1,
+        "operator2": ">",
+        "value2": 0
+      },
+      {
+        "type": "playerCount",
+        "operator": "==",
+        "value": 1,
+        "operator2": ">",
+        "value2": 0
+      }
+    ],
+    "prefix": "L",
+    "color": "player"
+  },
+  {
+    "name": "L_等高线 (副本)",
+    "conditions": [
+      {
+        "type": "playerCount",
+        "operator": "==",
+        "value": 3,
+        "operator2": ">",
+        "value2": 0
+      },
+      {
+        "type": "bankerCount",
+        "operator": ">=",
+        "value": 1,
+        "operator2": ">",
+        "value2": 0
+      },
+      {
+        "type": "playerCount",
+        "operator": "==",
+        "value": 1,
+        "operator2": ">",
+        "value2": 0
+      },
+      {
+        "type": "bankerCount",
+        "operator": ">=",
+        "value": 1,
+        "operator2": ">",
+        "value2": 0
+      },
+      {
+        "type": "playerCount",
+        "operator": "==",
+        "value": 3,
+        "operator2": ">",
+        "value2": 0
+      }
+    ],
+    "prefix": "L",
+    "color": "player"
+  },
+  {
+    "name": "L_等高线 (副本) (副本)",
+    "conditions": [
+      {
+        "type": "playerCount",
+        "operator": "==",
+        "value": 4,
+        "operator2": ">",
+        "value2": 0
+      },
+      {
+        "type": "bankerCount",
+        "operator": ">=",
+        "value": 1,
+        "operator2": ">",
+        "value2": 0
+      },
+      {
+        "type": "playerCount",
+        "operator": "==",
+        "value": 1,
+        "operator2": ">",
+        "value2": 0
+      },
+      {
+        "type": "bankerCount",
+        "operator": ">=",
+        "value": 1,
+        "operator2": ">",
+        "value2": 0
+      },
+      {
+        "type": "playerCount",
+        "operator": "==",
+        "value": 4,
+        "operator2": ">",
+        "value2": 0
+      }
+    ],
+    "prefix": "L",
+    "color": "player"
+  },
+  {
+    "name": "L_等高线 (副本) (副本) (副本)",
+    "conditions": [
+      {
+        "type": "playerCount",
+        "operator": "==",
+        "value": 5,
+        "operator2": ">",
+        "value2": 0
+      },
+      {
+        "type": "bankerCount",
+        "operator": ">=",
+        "value": 1,
+        "operator2": ">",
+        "value2": 0
+      },
+      {
+        "type": "playerCount",
+        "operator": "==",
+        "value": 1,
+        "operator2": ">",
+        "value2": 0
+      },
+      {
+        "type": "bankerCount",
+        "operator": ">=",
+        "value": 1,
+        "operator2": ">",
+        "value2": 0
+      },
+      {
+        "type": "playerCount",
+        "operator": "==",
+        "value": 5,
+        "operator2": ">",
+        "value2": 0
+      }
+    ],
+    "prefix": "L",
+    "color": "player"
+  },
+  {
+    "name": "L_等高线 (副本) (副本) (副本) (副本)",
+    "conditions": [
+      {
+        "type": "playerCount",
+        "operator": "==",
+        "value": 6,
+        "operator2": ">",
+        "value2": 0
+      },
+      {
+        "type": "bankerCount",
+        "operator": ">=",
+        "value": 1,
+        "operator2": ">",
+        "value2": 0
+      },
+      {
+        "type": "playerCount",
+        "operator": "==",
+        "value": 1,
+        "operator2": ">",
+        "value2": 0
+      },
+      {
+        "type": "bankerCount",
+        "operator": ">=",
+        "value": 1,
+        "operator2": ">",
+        "value2": 0
+      },
+      {
+        "type": "playerCount",
+        "operator": "==",
+        "value": 6,
+        "operator2": ">",
+        "value2": 0
+      }
+    ],
+    "prefix": "L",
+    "color": "player"
+  },
+  {
+    "name": "H_6666666666666666",
+    "conditions": [
+      {
+        "type": "bankerCount",
+        "operator": "==",
+        "value": 2,
+        "operator2": ">",
+        "value2": 0
+      }
+    ],
+    "prefix": "H",
+    "color": "banker"
+  },
+  {
+    "name": "H_7777777777777777777777",
+    "conditions": [
+      {
+        "type": "bankerCount",
+        "operator": "==",
+        "value": 4,
+        "operator2": ">",
+        "value2": 0
+      }
+    ],
+    "prefix": "H",
+    "color": "banker"
+  },
+  {
+    "name": "H_8888888888888888888888",
+    "conditions": [
+      {
+        "type": "bankerCount",
+        "operator": "==",
+        "value": 5,
+        "operator2": ">",
+        "value2": 0
+      }
+    ],
+    "prefix": "H",
+    "color": "banker"
+  },
+  {
+    "name": "H_9999999999999999999999",
+    "conditions": [
+      {
+        "type": "bankerCount",
+        "operator": "==",
+        "value": 7,
+        "operator2": ">",
+        "value2": 0
+      }
+    ],
+    "prefix": "H",
+    "color": "banker"
+  },
+  {
+    "name": "L_lll",
+    "conditions": [
+      {
+        "type": "playerCount",
+        "operator": ">=",
+        "value": 5,
+        "operator2": "<",
+        "value2": 8
+      }
+    ],
+    "prefix": "L",
+    "color": "player"
+  }
+]
